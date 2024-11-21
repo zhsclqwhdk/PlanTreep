@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link href="/css/map.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300;500;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap"
+		rel="stylesheet">
+	<link href="/css/font.css" rel="stylesheet">
+	<style>
+		.bg-gray {
+			background-color: rgb(223, 223, 223);
+		}
+	</style>
+</head>
+
+<body>
+	<nav th:replace="~{fragments/navFragments :: mainNav}"></nav>
+	<div class="header" style="margin-top: 75px;">
+
+	</div>
+	<div class="container-fluid m-1" style="font-family: sunflower; font-weight: bold;">
+		<div class=" translate-middle position-absolute start-50" style="top: 55%;">
+			<div class="event_effect01">
+				<div class="s1_slide d-flex">
+					<li class="list2 text-white">
+						<div class="p-2 border border-primary-subtle mt-1" style="border-radius: 15px;">
+							<div class="card mb-2">
+								<button class="btn btn-warning " onclick="mapBounds()">지도확대</button>
+							</div>
+							<div class="card" style="height: 85%; max-height: 720px;">
+								<div class="card-header">NodeList</div>
+								<div class="card-body" id="dateList" style="overflow-y: auto; height: 630px;">
+									<div class="accordion" id="dateAccordion">
+										<div class="accordion-item" th:each="item : ${dateList}">
+											<p class="btn fw-bold fs-5 w-100 text-center datebtn accordion-header "
+												th:text=${item} th:id="${item}" data-bs-toggle="collapse"
+												th:onclick="selDate([[${item}]])"
+												th:attr="data-bs-target='#b'+${item}, aria-controls=${item}"
+												aria-expanded="true"></p>
+											<div th:id="'b'+${item}" th:data-itemdate="${item}"
+												class="accordion-collapse collapse" data-bs-parent="#dateAccordion">
+												<div class="accordion-body">
+
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</li>
+					<li class="list3">
+						<div id="nodeList" class="rounded" style="overflow-y: auto; height: 740px;">
+						</div>
+					</li>
+					<li class="list4">
+						<div class="">
+							<div class="container-fluid" style="border-radius: 15px;">
+								<div id="map" class="w-100 rounded" style="height: 740px;"></div>
+							</div>
+						</div>
+					</li>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+	crossorigin="anonymous"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=6b3ab9a67b0492b1feb8d0173892ce2f"></script>
+<script src="/js/socket.js"></script>
+<script>
+
+
+
+	var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+		mapOption = {
+			center: new kakao.maps.LatLng(35.8176, 127.1521), // 지도의 중심좌표(인천일보아카데미)
+			level: 3 // 지도의 확대 레벨
+		};
+	var map = new kakao.maps.Map(mapContainer, mapOption); // 지도 생성 
+
+</script>
+<script>
+
+	// 전역 변수 선언
+	let onEl = null; // 현재 활성화된 요소의 ID를 저장
+	let placeEl = null; // 선택된 장소 요소를 저장
+	// 문서가 준비되면 실행되는 함수
+	$(document).ready(function () {
+		// 날짜 버튼 클릭 이벤트 처리
+		$(".datebtn").click(function (event) {
+			// 클릭된 버튼이 이전에 활성화된 버튼과 다르고, 'button-addon2'가 아닌 경우
+			if (event.target.id != onEl && event.target.id != 'button-addon2') {
+				$('#' + onEl).removeClass("Active"); // 이전 활성화 버튼에서 'Active' 클래스 제거
+				$('#' + event.target.id).addClass("Active"); // 클릭된 버튼에 'Active' 클래스 추가
+				console.log(onEl + ' re');
+			} else {
+				// 'button-addon2'가 아닌 경우에만 'Active' 클래스 추가
+				if (event.target.id != 'button-addon2') {
+					$('#' + event.target.id).addClass("Active");
+					console.log(onEl + ' add');
+				}
+			}
+			// 'list3' 클래스를 가진 요소가 'on' 클래스를 가지고 있는 경우
+			if ($(".s1_slide > li.list3").hasClass("on") == true) {
+				if (event.target.id == onEl) {
+					if (onEl != 'button-addon2') {
+						$(".s1_slide > li.list3").removeClass("on"); // 'on' 클래스 제거
+						$(".s1_slide li.list4").css('width', '1550px'); // 'list4' 너비 조정
+					}
+				} else {
+					onEl = event.target.id; // 현재 활성화된 요소 ID 업데이트
+				}
+			} else {
+				onEl = event.target.id; // 현재 활성화된 요소 ID 업데이트
+				console.log(onEl);
+
+				$(".s1_slide li.list4").css('width', '1170px'); // 'list4' 너비 조정
+				$(".s1_slide > li.list3").addClass("on"); // 'list3'에 'on' 클래스 추가
+			}
+		});
+	});
+	function mapBounds() {
+		// 현재 지도의 레벨을 얻어옵니다
+		var level = map.getLevel();
+
+		// 지도를 1레벨 올립니다 (지도가 축소됩니다)
+		map.setLevel(level - 8);
+	}
+	const NODE_MAP = {};
+	const MARKER_MAP = {};
+	const INFO_MAP = {};
+
+	// 마커를 저장할 객체
+	let MARKERS = {};
+	// 내일 날짜와 날짜 카운트 변수
+	let tomorrow_Date = null;
+
+	// 폴리라인 변수
+	var POLYLINE = null;
+
+	// 선택된 날짜
+	let selDateList = null;
+	// 계획 리스트
+	let planList = {};
+	let vrpList = {};
+	// 마커 리스트
+	let markerList = {};
+
+	// 시작과 끝 지점
+	let startPoint = {};
+	let endPoint = {};  // {  '2024-09-27' : node  }
+	let pathPoints = {};
+
+	// 추가 변수 선언
+	let calendarEl = []; // 캘린더 요소를 저장하는 배열
+	let todayLastNode = null; // 오늘의 마지막 노드를 저장
+
+	// 계획 리스트
+	function selDate(date) {
+		// 기존 폴리라인 제거
+		if (POLYLINE) {
+			POLYLINE.setMap(null);
+			POLYLINE = null;
+		}
+
+		// 삭제할 마커 목록
+		let deleteMarkerList = MARKERS[selDateList];
+		if (deleteMarkerList != undefined) {
+			for (let delMarker of deleteMarkerList) {
+				delMarker.setMap(null);
+			}
+		}
+
+		console.log('selDate(date) : ' + date);
+		let nodeParamId = '[[${planid}]]'
+		console.log(nodeParamId)
+
+
+		$.ajax({
+			url: '/boards/detailLoad',
+			type: 'get',
+			data: {'id': nodeParamId, 'date': date},
+			dataType: 'json',
+			async: false,
+			success: function (res) {
+				console.log(res.nodeList)
+				console.log(JSON.parse(res.pathPoints))
+				selDateList = date;
+				planList[selDateList] = res.nodeList;
+				nodeList = res.nodeList
+				let pathPoints = JSON.parse(res.pathPoints)
+				let inOutDate = document.getElementById('b' + date);
+				inOutDate.innerHTML = ``;
+				for (let node of planList[selDateList]) {
+					let dateList = document.createElement('div');
+					dateList.classList.add("list-group")
+					dateList.innerHTML = `<div class="list-group-item bg-gray">${node.name}</div>`;
+					inOutDate.appendChild(dateList);
+				}
+				addMarker(nodeList, pathPoints)
+				displayData(res);
+			}
+		})
+
+	}
+	function addMarker(nodeList, pathPoints) {
+
+		for (let node of nodeList) {
+			nodeX = node.x;
+			nodeY = node.y;
+			console.log("X : " + nodeX + " Y : " + nodeY)
+
+			const position = new kakao.maps.LatLng(nodeY, nodeX);
+
+			// 마커를 지도에 추가
+			const marker = new kakao.maps.Marker({position: position, clickable: true});
+			//marker.id = node.id;
+
+			let markerByDate = MARKERS[selDateList]
+			if (markerByDate == undefined) {
+				markerByDate = [];
+			}
+			markerByDate.push(marker);
+			MARKERS[selDateList] = markerByDate;
+
+			let addMarkerList = MARKERS[selDateList];
+			if (addMarkerList != undefined) {
+				for (let addMarker of addMarkerList) {
+					addMarker.setMap(map);
+				}
+			}
+			var moveLatLon = new kakao.maps.LatLng(nodeY, nodeX);
+			map.panTo(moveLatLon);
+
+			const name = node.name;
+			let phone = "";
+			if (node.phone == null) {
+				phone = "(번호없음)";
+			} else {
+				phone = node.phone;
+			}
+			// 인포윈도우 생성
+			const infowindow = new kakao.maps.InfoWindow({
+				content: '<div style="padding:5px;">' + name + '<br/>' + phone + '</div>',
+				removable: true
+			});
+			// 마커에 클릭 이벤트 등록
+			kakao.maps.event.addListener(marker, 'click', function () {
+				infowindow.open(map, marker);
+			});
+		}
+		drawPath(pathPoints);
+	}
+	function drawPath(pathPoints) {
+		console.log("drawPath 호출");
+		console.log(pathPoints);
+		if (pathPoints.length > 0) {
+			// 선을 구성하는 좌표 배열입니다. 이 좌표들을 이어서 선을 표시합니다
+			var linePath = [];
+			for (var point of pathPoints) {
+				linePath.push(new kakao.maps.LatLng(point.y, point.x));
+			}
+			// 지도에 표시할 선을 생성합니다
+			POLYLINE = new kakao.maps.Polyline({
+				path: linePath, // 선을 구성하는 좌표배열 입니다
+				strokeWeight: 5, // 선의 두께 입니다
+				strokeColor: "red", // 선의 색깔입니다
+				strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+				strokeStyle: "solid", // 선의 스타일입니다
+			});
+			// 지도에 선을 표시합니다
+			POLYLINE.setMap(map);
+		}
+		// 현재 지도의 레벨을 얻어옵니다
+		var level = map.getLevel();
+
+		// 지도를 1레벨 올립니다 (지도가 축소됩니다)
+		map.setLevel(level + 8);
+	}
+	function displayData(data) {
+		console.log(data);
+		const nodeList = data.nodeList; // 방문지목록
+		var bounds = new kakao.maps.LatLngBounds();
+		const nodeList_parent = document.getElementById('nodeList');
+		nodeList_parent.innerHTML = ``;
+		let nodeList_div = document.createElement('div');
+		nodeList_div.classList.add('list-group');
+		let phoneNo = "";
+
+		for (let node of nodeList) {
+			if (node.phone == null) {
+				phoneNo = "(번호없음)";
+			} else {
+				phoneNo = node.phone;
+			}
+			let listItem_div = document.createElement('div');
+			listItem_div.classList.add('list-group-item', 'list-group-item-action', 'place');
+			listItem_div.setAttribute("id", `${node.name}`)
+			listItem_div.innerHTML = `
+                     <div class="mt-3 small">
+                         <div class="d-flex w-100 align-items-center justify-content-start mb-1">
+                             <strong class="ms-1">${node.name}</strong>
+                         </div>
+                      <div class="d-flex align-items-center justify-content-between">
+                           <div class="d-flex align-items-center"><span class="badge text-bg-light border border-secondary-subtle me-2">주소</span> <span>${node.address}</span></div>
+                           <div class="d-flex align-items-center"><span class="badge text-bg-light border 
+                           border-secondary-subtle me-2">전화</span> <span>${phoneNo}</span></div>
+                           <div class="d-flex align-items-center">
+                      </div>
+                     </div>
+                     `;
+			nodeList_div.appendChild(listItem_div);
+			nodeList_parent.appendChild(nodeList_div);
+			$(".place").click(function (event) {
+				$('#' + event.target.id).addClass('NodeActive');
+			});
+		}
+	}
+
+
+	function checkReceivePlan() {
+		location.href = "/viewPlan";
+	}
+</script>
+
+
+
+</html>

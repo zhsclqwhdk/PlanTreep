@@ -1,0 +1,30 @@
+
+
+#slideshow {
+	margin: 0 auto;
+	position: relative;
+	width: 100%;
+	padding: 0;
+
+}
+
+#slideshow img {
+	width: 100%;
+	position: absolute;
+}
+
+#slideshow>div {
+	position: relative;
+	width: 100%;
+}
+
+.content {
+	position: relative;
+	z-index: 9;
+	margin-top: 60px;
+
+}
+
+.but {
+	opacity: .9;
+}

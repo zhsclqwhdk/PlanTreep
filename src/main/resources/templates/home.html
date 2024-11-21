@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap"
+	rel="stylesheet">
+<link href="/css/font.css" rel="stylesheet">
+<link href="/css/home.css" rel="stylesheet">
+<script th:if="${loginCheckMsg != null}">
+	alert('[[${loginCheckMsg}]]');
+</script>
+
+<body>
+	<!--nav-->
+	<nav th:replace="~{fragments/navFragments :: mainNav}"></nav>
+	<!--MainHeader-->
+
+	<div id="slideshow" class="container-fluid">
+		<div> <img src="UI/img1.jpg" class="img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img2.jpg" class="img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img3.jpg" class=" img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img4.jpg" class=" img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img5.jpg" class=" img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img6.jpg" class=" img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img7.jpg" class=" img-fluid" alt="..." style="opacity: .5;"></div>
+		<div style="display: none;"> <img src="/UI/img8.jpg" class=" img-fluid" alt="..." style="opacity: .5;"></div>
+	</div>
+	<div></div>
+	<div class="container-fluid">
+		<div class="position-absolute start-50 translate-middle" style="max-width: 350px; max-height: 150px; top: 20%;">
+			<img src="/UI/MainLogo.png" class="img-fluid" id="MainLogo">
+
+		</div>
+		<div>
+			<div class="position-absolute translate-middle" style="left: 100%; top: 85%; opacity: .4;">
+				<img src="/UI/city_2.png" class="img-fluid">
+			</div>
+		</div>
+		<div th:if="${session.loginId != null}">
+			<div th:if="${shareContentCnt > 0}" class="col-12 justify-content-center d-flex">
+				<h5>공유된 일정 : </h5>
+				<button th:text="${shareContentCnt}" class="btn btn-danger" onclick="checkReceivePlan()"></button>
+			</div>
+		</div>
+		<div class="position-absolute start-50 translate-middle" style="top: 50%; width: 50%; height: auto;" id="bList">
+			<div style="max-height: 350px; height: 350px; overflow-y: auto; scrollbar-width: none; ">
+				<div th:each="boardList : ${boardList}" >
+					<div class="text-center" style="overflow-y: auto; scrollbar-width: none; ">
+						<a th:href="@{/boards/boardDetail/{planid}/{boardid}(planid=${boardList.plan.id}, boardid=${boardList.id})} "
+							class="btn btn-dark w-100 mb-3 fs-3"
+							style="font-family: sunflower; font-weight: bold;">[[${boardList.plan.pname}]]</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+	<div class="position-absolute translate-middle" style="top: 80%; left: 50%;">
+		<a href="/plan" class="btn btn-dark rounded but w-100 fw-bold fs-2 p-3"
+			style="font-family: Jost;">MakeYourPlan</a>
+	</div>
+
+	</div>
+
+	<div class="footer"></div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+	crossorigin="anonymous"></script>
+<!--<script>
+  const imgList = ['imgs/kyoto5.png','imgs/kyoto8.png','imgs/kyoto9.png'];
+  let imgIdx = 0 ;
+  let imgInterval = setInterval( function(){
+    document.getElementById('bgimg').src = imgList[imgIdx];
+    imgIdx++;
+    if(imgIdx > imgList.length-1){
+      imgIdx = 0;
+    }
+  },1000   )  
+ </script>-->
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="/js/socket.js"></script>
+<script>
+	$("#slideshow > div:gt(0)").hide();
+	setInterval(function () {
+		$("#slideshow > div:first")
+			.fadeOut(1000)
+			.next()
+			.fadeIn(1000)
+			.end()
+			.appendTo("#slideshow");
+	}, 3000);
+
+	function checkReceivePlan() {
+		location.href = "/viewPlan";
+	}
+
+	$("#MainLogo").hide();
+	$("#bList").hide();
+	$("#MainLogo").fadeIn(1500);
+	$("#bList").fadeIn(2500);
+</script>
+<script>
+	function canversLogin() {
+		let inputMidValue = document.getElementById("inputMid").value;
+		let inputMpwValue = document.getElementById("inputMpw").value;
+
+		let loginResultEl = document.getElementById("loginResultMsg");
+		let ajaxResult = "";
+		$.ajax({
+			url: '/member/canversLogin',
+			type: 'POST',
+			data: {mid: inputMidValue, mpw: inputMpwValue},
+			async: false,
+			success: function (result) {
+				console.log(result)
+				ajaxResult = result;
+			}
+		});
+
+		if (ajaxResult == "N") {
+			loginResultEl.classList.remove('d-none');
+			loginResultEl.classList.add('text-danger');
+		} else {
+			location.reload();
+		}
+	}
+
+
+
+</script>
+
+</html>

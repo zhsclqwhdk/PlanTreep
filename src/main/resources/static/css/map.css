@@ -1,0 +1,130 @@
+
+#mInfoImg{
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	height: 100vh;
+	width: 100vw;
+	background-image: url('/UI/city_5.png');
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+
+.datebtn:hover {
+	background-color: darkgrey;
+}
+
+.Active {
+	background-color: rgb(166, 208, 251);
+}
+
+.s1_slide {
+	width: 100%;
+	height: 780px;
+
+}
+
+.s1_slide:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.s1_slide li {
+	position: relative;
+	float: left;
+	padding: 10px 10px;
+	height: 100%;
+	transition: all 0.3s;
+
+	box-sizing: border-box;
+}
+
+.s1_slide li:before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	opacity: 1;
+	transition: all 0.3s;
+	border-radius: 15px;
+}
+
+.s1_slide li.list2 {
+	border-radius: 15px;
+	background-color: rgb(0, 128, 255, 0.7);
+	width: 300px;
+}
+
+.s1_slide li.list3 {
+	border-radius: 15px;
+	background-color: rgb(0, 128, 255, 0.7);
+	width: 0px;
+
+}
+
+.s1_slide li.list4 {
+	border-radius: 15px;
+	background-color: rgb(0, 128, 255, 0.7);
+	width: 1550px;
+}
+
+.s1_slide li .t_txt {
+	position: relative;
+	padding-bottom: 22px;
+	color: #fff;
+	font-size: 22px;
+	line-height: 1.5;
+	font-weight: normal;
+}
+
+.s1_slide li .t_txt:before {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 0;
+	height: 1px;
+	background: rgba(255, 255, 255);
+	transition: all 0.3s;
+}
+
+.s1_slide li .s_txt {
+	opacity: 0;
+	margin-top: 35px;
+	width: 100%;
+	color: #fff;
+	font-size: 15px;
+	line-height: 1.8;
+}
+
+
+/* class on 추가됐을 때 css*/
+.s1_slide li.list3.on {
+	width: 400px;
+}
+
+.s1_slide li.list3.on:before {
+	content: "";
+	opacity: 0;
+	transition: all 0.3s;
+}
+
+.s1_slide li.list3.on .t_txt:before {
+	width: 100%;
+	transition: all 0.3s;
+}
+
+.s1_slide li.list3.on .s_txt {
+	opacity: 1;
+}
+
+.s1_slide li.on img {
+	opacity: 0;
+}

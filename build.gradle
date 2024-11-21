@@ -1,0 +1,71 @@
+plugins {
+  id 'java'
+  id 'war'
+  id 'org.springframework.boot' version '3.3.3'
+  id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'kr.co.404icia'
+version = '0.0.1-SNAPSHOT'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
+configurations {
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // JPA, JDBC
+  implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+  
+  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-websocket'
+  implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+  
+  // https://mvnrepository.com/artifact/com.google.code.gson/gson  Gson
+  implementation group: 'com.google.code.gson', name: 'gson', version: '2.11.0'
+  
+  // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+  implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
+  
+  // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: '3.3.2'
+
+  // https://mvnrepository.com/artifact/com.graphhopper/jsprit-core
+  implementation 'com.graphhopper:jsprit-core:1.8'
+  
+  // https://mvnrepository.com/artifact/com.graphhopper/jsprit-analysis
+  implementation 'com.graphhopper:jsprit-analysis:1.8'
+  
+  // https://mvnrepository.com/artifact/com.graphhopper/jsprit-io
+  implementation 'com.graphhopper:jsprit-io:1.8'
+ 
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  
+  compileOnly 'org.projectlombok:lombok'
+  developmentOnly 'org.springframework.boot:spring-boot-devtools'
+  runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+  annotationProcessor 'org.projectlombok:lombok'
+  providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+}

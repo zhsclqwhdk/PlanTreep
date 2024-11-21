@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>My Planner</title>
+	<!-- BootStrap css -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300;500;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap"
+		rel="stylesheet">
+	<link href="/css/font.css" rel="stylesheet">
+	<style>
+		.header a {
+			text-decoration: none;
+			color: inherit;
+		}
+		
+		body {
+			height: 100vh;
+			width: 100vw;
+			background-image: url('/UI/city_5.png');
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+	</style>
+
+</head>
+
+<body>
+	<!--nav-->
+	<nav th:replace="~{fragments/navFragments :: mainNav}"></nav>
+	<div class="container rounded bg-white p-4 border" style="margin-top: 150px; border-radius: 15px;">
+		<div class="header text-center mb-5">
+			<h1><a href="/" style="font-family: Jost; font-weight: bold; font-size: 80px;">My PlanList</a></h1>
+		</div>
+
+		<div class="content">
+			<!-- 컨텐츠가 출력될 부분 -->
+			<div class="w-50" style="font-family: sunflower; font-weight: bold; "><p>공유할 회원의 닉네임을 검색 해 주세요</p></div>
+			<div class="mb-3" style="font-family: sunflower; font-weight: bold;">
+				<input type="hidden" th:value="${session.loginMid}" id="inputLoginMnickname">
+				<div class="form-floating w-50 input-group">
+					<input type="text" name="searchMemId" id="searchMemNick" class="form-control" placeholder="닉네임 검색"
+					aria-label="Example text with button addon" aria-describedby="button-addon1">
+					<button class="btn btn-dark rounded"id="button-addon1" type="button" onclick="return searchMem()">검색</button>
+					<label for="searchMemId">SearchMember</label>
+				</div>
+				<div>
+					<div id="showMember">
+					</div>
+				</div>
+			</div>
+
+			<div class="mb-5" style="font-family: sunflower; font-weight: bold; font-size: large;">
+				
+				<table class="table table-striped" id="myPlan">
+					<tr class="text-center">
+						<th>번호</th>
+						<th>제목</th>
+						<th>시작일</th>
+						<th>종료일</th>
+						<th>공유</th>
+					</tr>
+					<tr th:each="myPlanList : ${myPlanList}" class="text-center" >
+						<td th:text="${myPlanList.id}" ></td>
+						<td><a class="btn btn-dark w-100" th:href="@{/planDetail/{id}(id=${myPlanList.id})}" th:text="${myPlanList.pname}"></a>
+						</td>
+						<td th:text="${myPlanList.pstartdate}" class="planDetailDate"></td>
+						<td th:text="${myPlanList.penddate}" class="planDetailVehicle"></td>
+						<td>
+							<input type="checkbox" class="btn-check checkPlanBtn" th:id="${myPlanList.id}" name="planid"
+								th:value="${myPlanList.id}" th:onclick="shareCheck([[${myPlanList.id}]])"
+								autocomplete="off">
+							<label id="shareBtn" class="btn btn-outline-primary shareLabel"
+								th:for="${myPlanList.id}">공유</label>
+							<button
+								th:if="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd') > myPlanList.penddate  }"
+								class="reviewBtn btn btn-outline-danger" th:data-planid="${myPlanList.id}"
+								th:onclick="confirmCheck([[${myPlanList.id}]])">
+								후기작성
+							</button>
+							<br>
+						</td>
+					</tr>
+				</table>
+				<button class="btn btn-danger w-100" id="shareButton" onclick="sharePlanToMember()"
+				style="font-size: x-large;">공유하기</button>
+				<hr>
+				<h3>공유받은 일정</h3>
+				<table class="table table-striped">
+					<tr class="text-center">
+						<th>번호</th>
+						<th>제목</th>
+						<th>시작일</th>
+						<th>종료일</th>
+					</tr>
+					<tr th:each="shareContent : ${shareList}" class="text-center">
+						<td th:text="${shareContent.planId.id}"></td>
+						<td><a class="btn btn-dark w-100" th:href="@{/planDetail/{id}(id=${shareContent.planId.id})}"
+								th:text="${shareContent.planId.pname}">
+							</a></td>
+						<td th:text="${shareContent.planId.pstartdate}"></td>
+						<td th:text="${shareContent.planId.penddate}"></td>
+					</tr>
+				</table>
+			</div>
+			
+		</div>
+
+		<div class="footer">
+			<!-- 하단 영역 -->
+			
+		</div>
+	</div>
+	<script>
+		let loginMidEl = '[[${session.loginNickname}]]';
+
+		function checkReceivePlan() {
+			location.href = "/viewPlan";
+		}
+	</script>
+	<!-- BootStrap js -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous"></script>
+	<!--JQuery-->
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+	<!--SOCKET-->
+	<script src="/js/socket.js"></script>
+
+	<!--myPlanView.js-->
+	<script src="/js/myPlanView.js"></script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+.jost {
+  font-family: "Jost", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sunflower-light {
+	font-family: "Sunflower", sans-serif;
+	font-weight: 300;
+	font-style: normal;
+}
+
+.sunflower-medium {
+	font-family: "Sunflower", sans-serif;
+	font-weight: 500;
+	font-style: normal;
+}
+
+.sunflower-bold {
+	font-family: "Sunflower", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+}

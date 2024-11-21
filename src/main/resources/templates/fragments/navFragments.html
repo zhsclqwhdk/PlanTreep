@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@300;500;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap"
+		rel="stylesheet">
+		<link href="/css/font.css" rel="stylesheet">
+</head>
+
+<body>
+  <nav th:fragment="mainNav" class="navbar bg-body-tertiary fixed-top w-100" 
+  style="z-index: 10; font-family: sunflower; font-weight: bold;
+  ">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        <img src="/UI/MainLogo_no.png" style="max-width: 100px;">
+      </a>
+      <div class="d-flex align-items-center">
+        <button class="navbar-toggler position-relative" type="button" data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="
+          position: relative;">
+          <span class="navbar-toggler-icon"></span>
+          <span th:if="${session.loginId != null}"
+            th:classappend="${shareContentCnt == null || shareContentCnt == 0}?'d-none'"
+            class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"
+            id="alertBtn" onclick="checkReceivePlan()">
+            <span class="visually-hidden">New alerts</span>
+          </span>
+        </button>
+      </div>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel"
+	  style="
+	  width: 350px;
+	  background-image: url('/UI/city_2.png');
+	  background-repeat: no-repeat;
+	  background-size: contain;
+	  background-position: bottom;">
+        <div class="offcanvas-header" th:if="${session.loginId ==  null}">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Sub Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" th:if="${session.loginId == null}">
+          <div class="m-auto my-3" style="max-width: 350px;">
+            <div>
+              <h1 class="h3 mb-3 fw-normal">로그인</h1>
+
+              <div class="form-floating mb-2">
+                <input type="text" class="form-control" id="inputMid" name="mid" placeholder="아이디 입력..">
+                <label for="inputMid">아이디</label>
+              </div>
+              <div class="form-floating mb-2">
+                <input type="password" class="form-control" name="mpw" id="inputMpw" placeholder="비밀번호 입력...">
+                <label for="floatingPassword">비밀번호</label>
+              </div>
+              <span class="d-none" id="loginResultMsg">로그인에 실패했습니다.</span>
+              <button class="btn btn-primary w-100 py-2 my-1 fw-bold" type="button"
+                onclick="canversLogin()">로그인</button>
+              <a href="/member/KakaoAuthCode" class="btn btn-warning fw-bold w-100 py-2 my-1" style="color: black">카카오
+                로그인</a>
+              </form>
+              <a href="/member/joinFormPage" class="btn btn-secondary fw-bold w-100 py-2 my-1">회원가입</a>
+            </div>
+          </div>
+        </div>
+        <div class="offcanvas-header" th:if="${session.loginId !=  null}">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">SubMenu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" th:if="${session.loginId !=  null}">
+          <div class="m-auto my-3" style="max-width: 350px;">
+            <div class="col-12 justify-content-center d-flex">
+              <div class="fw-bold mb-2 fs-2">[[${session.loginNickname}]] 님</div>
+            </div>
+            <div class="col-12 justify-content-center d-flex">
+              <a href="/member/memInfo" class="btn btn-primary px-5 py-4 fw-bold w-100 mb-2">회원정보</a>
+            </div>
+            <div class="col-12 justify-content-center d-flex">
+              <a href="/viewPlan" class="btn btn-warning text-black px-5 py-4 fw-bold w-100 mb-2">내 일정 보기
+                <span th:classappend="${shareContentCnt == null || shareContentCnt == 0}?'d-none'" id="sharedPlan"
+                  th:text="${shareContentCnt}" class="badge text-bg-danger fw-bold ms-2">
+                </span>
+              </a>
+            </div>
+            <div class="col-12 text-center">
+              <a href="/member/logout" class="btn btn-dark px-5 py-4 fw-bold w-100 mb-2">로그아웃</a>
+            </div>
+          </div>
+        </div>
+      </div>
+  </nav>
+
+  <script src="/js/socket.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <script>
+    function checkReceivePlan() {
+      location.href = "/viewPlan";
+    }
+  </script>
+</body>
+
+</html>
